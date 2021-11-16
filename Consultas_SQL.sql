@@ -19,7 +19,7 @@ BRASÍLIA - DF
 USE transportadora;
 
 -- PESQUISA DOS FUNCIONARIOS CADASTRADOS
-SELECT
+SELECT -- OK
 	funcionarios.id,
     funcionarios.matricula,
     funcionarios.nome,
@@ -29,11 +29,11 @@ LEFT JOIN cargos ON cargos.id = funcionarios.id;
 -- ######################################################## --
 
 -- PESQUISA DE TODOS OS ENDERECOS CADASTRADOS
-SELECT * FROM enderecos;
+SELECT * FROM enderecos; -- OK
 -- ######################################################## --
 
 -- PESQUISA DOS CLIENTES PESSOA JURIDICA CADASTRADOS
-SELECT 
+SELECT -- OK
 	clientes.id,
     juridica.razao_social AS razao_social,
     juridica.cnpj AS cnpj,
@@ -54,7 +54,7 @@ WHERE CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END = 'juridic
 -- ######################################################## --
 
 -- PESQUISA DOS CLIENTES PESSOA FISICA CADASTRADOS
-SELECT 
+SELECT -- OK
 	clientes.id,
     CONCAT(fisica.nome, ' ', fisica.sobrenome) AS nome,
     fisica.cpf AS cpf,
@@ -73,7 +73,7 @@ WHERE CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END = 'fisica'
 -- ######################################################## --
 
 -- PESQUISA TODOS CLIENTES CADASTRADOS
-SELECT 
+SELECT -- OK
 	clientes.id,
 	CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
     COALESCE(CONCAT(fisica.nome, fisica.sobrenome), juridica.razao_social) AS nome,
@@ -91,7 +91,7 @@ LEFT JOIN telefones ON clientes.telefone = telefones.id;
 -- ######################################################## --
 
 -- PESQUISA SOMENTE OS PEDIDOS DA PESSOA JURIDICA
-SELECT ordens.id, 
+SELECT ordens.id, -- OK
     juridica.razao_social AS razao_social,
     juridica.cnpj AS cnpj,
     ordens.objeto, 
@@ -104,7 +104,7 @@ INNER JOIN juridica ON clientes.id = juridica.clientes_id;
 -- ######################################################## --
 
 -- PESQUISA SOMENTE OS PEDIDOS DA PESSOA FISICA
-SELECT ordens.id, 
+SELECT ordens.id, -- OK
     fisica.nome AS nome,
     ordens.objeto, 
     ordens.quantidade,
@@ -116,9 +116,9 @@ INNER JOIN fisica ON clientes.id = fisica.clientes_id;
 -- ######################################################## --
 
 -- PESQUISA COMPLETA DA TABELA ORDENS_SERVICOS
-SELECT ordens.id, 
+SELECT ordens.id, -- OK
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
-	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
+    COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
     CONCAT(endereco_origem.logradouro, ' - ', ordens.numero_origem, ', ', endereco_origem.bairro, ', ', endereco_origem.cidade, ' - ', endereco_origem.uf) AS endereco_origem,
     endereco_origem.cep AS cep_origem,
@@ -129,8 +129,8 @@ SELECT ordens.id,
     ordens.quantidade,
     ordens.peso,
     ordens.preco_final AS preco,
-    FORMAT(ordens.preco_final * (pagamento.taxas/100), 2) AS taxas,
-    FORMAT (ordens.preco_final + FORMAT(ordens.preco_final * (pagamento.taxas/100), 2), 2) AS preco_final,
+    to_char(ordens.preco_final * (pagamento.taxas/100), 'FM999999999.00') AS taxas,
+    to_char(ordens.preco_final + (ordens.preco_final * (pagamento.taxas/100)), 'FM999999999.00') AS preco_final,
     pagamento.descricao,
     CONCAT (veiculo.marca, ' - ', veiculo.modelo, ' (', veiculo.placa, ' - ', veiculo.estado, ')') AS veiculo,
     ordens.data_recebimento AS data_recebido
@@ -147,7 +147,7 @@ INNER JOIN veiculos veiculo ON ordens.veiculo = veiculo.id;
 -- ######################################################## --
 
 -- SELECIONAR AS ORDENS DE SERVICO COM DESTINO PARA O ACRE
-SELECT ordens.id, 
+SELECT ordens.id, -- OK
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
 	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
@@ -177,7 +177,7 @@ WHERE endereco_destino.uf = 'AC';
 -- ######################################################## --
 
 -- SELECIONAR AS ORDENS DE SERVICO QUE A Noémi
-SELECT ordens.id, 
+SELECT ordens.id, -- OK
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
 	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
@@ -207,7 +207,7 @@ WHERE funcionario.nome = 'Noémi Castelo Branco Doutis';
 -- ######################################################## --
 
 -- SELECIONAR AS ORDENS DE SERVICO QUE A FORAM RECEBIDOS NO DIA 27
-SELECT ordens.id, 
+SELECT ordens.id, -- BUG
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
 	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
@@ -237,7 +237,7 @@ WHERE DAY(ordens.data_recebimento) = "27";
 -- ######################################################## --
 
 -- SELECIONAR AS ORDENS DE SERVICO QUE A FORAM RECEBIDOS NO ANO DE 2021
-SELECT ordens.id, 
+SELECT ordens.id, -- BUG
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
 	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
