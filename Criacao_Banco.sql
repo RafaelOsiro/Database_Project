@@ -20,7 +20,7 @@ BRASÍLIA - DF
 -- CRIACAO DO BANCO DE DADOS --
 -- ------------------------- --
 DROP DATABASE IF EXISTS transportadora;
-CREATE DATABASE transportadora;									
+CREATE DATABASE transportadora;
 
 -- ------------------- --
 -- CRIACAO DAS TABELAS --
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS enderecos (
     bairro VARCHAR(50) NOT NULL,
     cidade VARCHAR(50) NOT NULL,
     uf CHAR(2) NOT NULL,
-    cep INT NOT NULL CHECK(cep > 9999999)  CHECK(cep < 100000000),
+    cep CHAR(8) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -141,6 +141,21 @@ CREATE TABLE IF NOT EXISTS veiculos (
 	PRIMARY KEY (id)
 );
 
+-- CRIAÇÃO DA TABELA FILIAL _________________________________________________________________________________________--
+DROP TABLE IF EXISTS filial; -- OK
+CREATE TABLE IF NOT EXISTS filial (
+  id SERIAL NOT NULL,
+  cnpj CHAR(14) NOT NULL,
+  ie VARCHAR(15) NULL DEFAULT '',
+  im VARCHAR(15) NULL DEFAULT '',
+  razao_social VARCHAR(50) NOT NULL,
+  clientes_id SERIAL NOT NULL,
+  PRIMARY KEY (clientes_id),
+  CONSTRAINT fk_filial_clientes
+		FOREIGN KEY (clientes_id)
+		REFERENCES clientes (id)
+);
+
 -- CRIAÇÃO DA TABELA ORDENS_SERVICOS _________________________________________________________________________________________--
 DROP TABLE IF EXISTS ordens_servicos; -- OK
 CREATE TABLE IF NOT EXISTS ordens_servicos (
@@ -182,3 +197,15 @@ CREATE TABLE IF NOT EXISTS ordens_servicos (
 		FOREIGN KEY (destino)
 		REFERENCES enderecos (id)
 );
+
+-- ALTERACAO DA TABELA FILIAL _________________________________________________________________________________________--
+ALTER TABLE IF EXISTS filial -- OK
+  DROP CONSTRAINT fk_filial_clientes,
+  DROP clientes_id;
+
+ALTER TABLE IF EXISTS filial
+  RENAME COLUMN  razao_social TO filial;
+
+
+DROP TABLE IF EXISTS filial;
+
