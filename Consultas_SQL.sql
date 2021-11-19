@@ -116,9 +116,9 @@ INNER JOIN fisica ON clientes.id = fisica.clientes_id;
 -- ######################################################## --
 
 -- PESQUISA COMPLETA DA TABELA ORDENS_SERVICOS
-SELECT ordens.id, -- OK
+SELECT ordens.id, -- OK --
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
-    COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
+	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
     CONCAT(endereco_origem.logradouro, ' - ', ordens.numero_origem, ', ', endereco_origem.bairro, ', ', endereco_origem.cidade, ' - ', endereco_origem.uf) AS endereco_origem,
     endereco_origem.cep AS cep_origem,
@@ -129,8 +129,8 @@ SELECT ordens.id, -- OK
     ordens.quantidade,
     ordens.peso,
     ordens.preco_final AS preco,
-    to_char(ordens.preco_final * (pagamento.taxas/100), 'FM999999999.00') AS taxas,
-    to_char(ordens.preco_final + (ordens.preco_final * (pagamento.taxas/100)), 'FM999999999.00') AS preco_final,
+    TO_CHAR(ordens.preco_final * (pagamento.taxas/100), '9999999D99') AS taxas,
+    TO_CHAR(ordens.preco_final + (ordens.preco_final * (pagamento.taxas/100)), '9999999D99') AS preco_final,
     pagamento.descricao,
     CONCAT (veiculo.marca, ' - ', veiculo.modelo, ' (', veiculo.placa, ' - ', veiculo.estado, ')') AS veiculo,
     ordens.data_recebimento AS data_recebido
@@ -207,7 +207,7 @@ WHERE funcionario.nome = 'Noémi Castelo Branco Doutis';
 -- ######################################################## --
 
 -- SELECIONAR AS ORDENS DE SERVICO QUE A FORAM RECEBIDOS NO DIA 27
-SELECT ordens.id, -- BUG
+SELECT ordens.id, -- OK
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
 	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
@@ -233,11 +233,11 @@ INNER JOIN enderecos endereco_destino ON ordens.destino = endereco_destino.id
 INNER JOIN formas_pagamento pagamento ON ordens.formas_pagamento = pagamento.id
 INNER JOIN funcionarios funcionario ON ordens.atendente = funcionario.id
 INNER JOIN veiculos veiculo ON ordens.veiculo = veiculo.id
-WHERE DAY(ordens.data_recebimento) = "27";
+WHERE EXTRACT (DAY FROM ordens.data_recebimento) = 27;
 -- ######################################################## --
 
 -- SELECIONAR AS ORDENS DE SERVICO QUE A FORAM RECEBIDOS NO ANO DE 2021
-SELECT ordens.id, -- BUG
+SELECT ordens.id, -- OK
     CASE WHEN fisica.nome IS NULL THEN 'juridica' ELSE 'fisica' END AS tipo,
 	COALESCE(fisica.nome, juridica.razao_social) AS cliente_nome,
     servicos.descricao AS descricao_servico,
@@ -263,5 +263,5 @@ INNER JOIN enderecos endereco_destino ON ordens.destino = endereco_destino.id
 INNER JOIN formas_pagamento pagamento ON ordens.formas_pagamento = pagamento.id
 INNER JOIN funcionarios funcionario ON ordens.atendente = funcionario.id
 INNER JOIN veiculos veiculo ON ordens.veiculo = veiculo.id
-WHERE YEAR(ordens.data_recebimento) = "2021";
+WHERE EXTRACT (YEAR FROM ordens.data_recebimento) = 2021;
 -- ######################################################## --
